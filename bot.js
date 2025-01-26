@@ -50,7 +50,10 @@ client.on('messageCreate', async (message) => {
         const query = args.slice(1).join(' ');
         const channel = message.member.voice.channel;
 
-        if (!channel) return message.reply('Tienes que estar en un canal de voz para reproducir música!');
+        if (!channel) {
+            console.log('El usuario no está en un canal de voz');
+            return message.reply('Tienes que estar en un canal de voz para reproducir música!');
+        }
 
         // Crear una cola de reproducción
         const queue = player.createQueue(message.guild, {
@@ -63,6 +66,7 @@ client.on('messageCreate', async (message) => {
             // Conectar al canal de voz
             if (!queue.connection) {
                 await queue.connect(channel);
+                console.log('Bot conectado al canal de voz');
                 message.reply('Conectado al canal de voz');
             }
         } catch (error) {
@@ -76,12 +80,16 @@ client.on('messageCreate', async (message) => {
             requestedBy: message.member
         });
 
-        if (!result || !result.tracks.length) return message.reply('No se encontraron resultados!');
+        if (!result || !result.tracks.length) {
+            console.log('No se encontraron resultados para la búsqueda');
+            return message.reply('No se encontraron resultados!');
+        }
 
         const track = result.tracks[0];
         queue.play(track);
 
         message.reply(`Reproduciendo \`${track.title}\``);
+        console.log(`Reproduciendo \`${track.title}\``);
     }
 });
 
