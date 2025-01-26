@@ -4,18 +4,16 @@ on:
   push:
     branches:
       - main
-  schedule:
-    - cron: '*/15 * * * *'  # Programar para ejecutarse cada 15 minutos
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
+    - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Setup Node.js
+    - name: Set up Node.js
       uses: actions/setup-node@v2
       with:
         node-version: '18'
@@ -23,9 +21,7 @@ jobs:
     - name: Install dependencies
       run: npm install
 
-    - name: Run the bot
-      run: |
-        nohup npm start &
-        sleep 3600  # Mantener el bot activo durante 1 hora
+    - name: Start bot
+      run: node bot.js
       env:
         DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
