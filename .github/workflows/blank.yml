@@ -24,4 +24,4 @@ jobs:
     - name: Run the bot
       run: node bot.js
       env:
-        DISCORD_TOKEN: ${{ secrets.MTE5Mjg3MDM0NzI5NzUyNTc3MA.GMm1dS.xlPu3tZ2452Mh7WIyUmrkV0F80lDaP4hZ4K-fU }}
+        DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
