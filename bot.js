@@ -2,6 +2,7 @@
 const { Client, GatewayIntentBits } = require('discord.js');
 const { Player } = require('discord-player');
 const { exec } = require('child_process');
+require('dotenv').config();  // Cargar variables de entorno desde el archivo .env
 
 // Crear una nueva instancia del cliente de Discord
 const client = new Client({
@@ -14,11 +15,16 @@ const client = new Client({
 });
 
 // Crear una nueva instancia del reproductor
-const player = new Player(client);
+const player = new Player(client, {
+    ytdlOptions: {
+        quality: 'highestaudio',
+        highWaterMark: 1 << 25,
+    }
+});
 
 // Cuando el bot esté listo
 client.on('ready', () => {
-    console.log('Tamo ready');
+    console.log('Bot listo y funcionando');
 });
 
 // Comando para encender el bot
@@ -56,19 +62,24 @@ client.on('messageCreate', async (message) => {
 
         try {
             // Conectar al canal de voz
-            if (!queue.connection) await queue.connect(channel);
+            if (!queue.connection) {
+                await queue.connect(channel);
+                message.reply('Conectado al canal de voz');
+            }
         } catch (error) {
+            console.error('Error al conectar al canal de voz:', error);
             queue.destroy();
             return message.reply('No pude unirme al canal de voz!');
         }
 
         // Buscar y reproducir la pista
-        const track = await player.search(query, {
+        const result = await player.search(query, {
             requestedBy: message.member
-        }).then(x => x.tracks[0]);
+        });
 
-        if (!track) return message.reply('No se encontraron resultados!');
+        if (!result || !result.tracks.length) return message.reply('No se encontraron resultados!');
 
+        const track = result.tracks[0];
         queue.play(track);
 
         message.reply(`Reproduciendo \`${track.title}\``);
