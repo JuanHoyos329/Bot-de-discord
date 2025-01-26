@@ -1,7 +1,6 @@
-// Requerimientos
+require('dotenv').config(); // Cargar variables de entorno desde el archivo .env
 const { Client, GatewayIntentBits } = require('discord.js');
 const { Player } = require('discord-player');
-const { exec } = require('child_process');
 
 // Crear una nueva instancia del cliente de Discord
 const client = new Client({
@@ -10,7 +9,7 @@ const client = new Client({
         GatewayIntentBits.GuildVoiceStates,
         GatewayIntentBits.GuildMessages,
         GatewayIntentBits.MessageContent,
-    ]
+    ],
 });
 
 // Crear una nueva instancia del reproductor
@@ -18,86 +17,63 @@ const player = new Player(client, {
     ytdlOptions: {
         quality: 'highestaudio',
         highWaterMark: 1 << 25,
-    }
+    },
 });
 
-// Cuando el bot esté listo
+// Evento: cuando el bot esté listo
 client.on('ready', () => {
     console.log('Bot listo y funcionando');
 });
 
-// Comando para encender el bot
-client.on('messageCreate', (message) => {
-    if (message.content === '!startbot') {
-        exec('node bot.js', (error, stdout, stderr) => {
-            if (error) {
-                message.reply(`Error al iniciar el bot: ${error.message}`);
-                return;
-            }
-            if (stderr) {
-                message.reply(`Error: ${stderr}`);
-                return;
-            }
-            message.reply(`Bot iniciado: ${stdout}`);
-        });
-    }
-});
-
-// Comando para reproducir música
+// Evento: manejo de mensajes
 client.on('messageCreate', async (message) => {
     if (message.content.startsWith('!play')) {
         const args = message.content.split(' ');
-        const query = args.slice(1).join(' ');
-        const channel = message.member.voice.channel;
+        const query = args.slice(1).join(' '); // Extraer la consulta de búsqueda
+        const channel = message.member?.voice?.channel; // Obtener el canal de voz del usuario
 
         if (!channel) {
-            console.log('El usuario no está en un canal de voz');
-            return message.reply('Tienes que estar en un canal de voz para reproducir música!');
+            return message.reply('¡Debes estar en un canal de voz para reproducir música!');
         }
 
-        // Crear una cola de reproducción
         const queue = player.createQueue(message.guild, {
             metadata: {
-                channel: message.channel
-            }
+                channel: message.channel, // Canal donde se enviarán mensajes
+            },
         });
 
         try {
-            // Conectar al canal de voz
-            if (!queue.connection) {
-                await queue.connect(channel);
-                console.log('Bot conectado al canal de voz');
-                message.reply('Conectado al canal de voz');
-            }
-        } catch (error) {
-            console.error('Error al conectar al canal de voz:', error);
-            queue.destroy();
-            return message.reply('No pude unirme al canal de voz!');
+            if (!queue.connection) await queue.connect(channel); // Conectar al canal de voz
+        } catch {
+            queue.destroy(); // Destruir la cola si no se puede conectar
+            return message.reply('No pude unirme al canal de voz.');
         }
 
-        // Buscar y reproducir la pista
         const result = await player.search(query, {
-            requestedBy: message.member
+            requestedBy: message.member,
+            searchEngine: 'youtube', // Usar YouTube como motor de búsqueda
         });
 
         if (!result || !result.tracks.length) {
-            console.log('No se encontraron resultados para la búsqueda');
-            return message.reply('No se encontraron resultados!');
+            return message.reply('No se encontraron resultados.');
         }
 
-        const track = result.tracks[0];
-        queue.play(track);
+        const track = result.tracks[0]; // Seleccionar la primera pista
+        queue.play(track); // Reproducir la pista en la cola
 
-        message.reply(`Reproduciendo \`${track.title}\``);
-        console.log(`Reproduciendo \`${track.title}\``);
+        message.channel.send(`🎵 Reproduciendo: **${track.title}**`); // Notificar la reproducción
     }
 });
 
-// Manejo de errores
-client.on('error', console.error);
+// Evento: manejo de errores en el reproductor
 player.on('error', (queue, error) => {
-    console.log(`Error en la cola ${queue.guild.name}: ${error.message}`);
+    console.error(`Error en la cola (${queue.guild.name}):`, error.message);
 });
 
-// Conectar el bot
+// Evento: al comenzar una pista
+player.on('trackStart', (queue, track) => {
+    console.log(`Reproduciendo: ${track.title}`);
+});
+
+// Iniciar sesión con el token
 client.login(process.env.DISCORD_TOKEN);
