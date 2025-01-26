@@ -1,9 +1,16 @@
 // Requerimientos
-const { Client, Intents } = require('discord.js');
+const { Client, GatewayIntentBits } = require('discord.js');
 const { Player } = require('discord-player');
 
 // Crear una nueva instancia del cliente de Discord
-const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_VOICE_STATES, Intents.FLAGS.GUILD_MESSAGES] });
+const client = new Client({
+    intents: [
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildVoiceStates,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.MessageContent,
+    ]
+});
 
 // Crear una nueva instancia del reproductor
 const player = new Player(client);
@@ -45,6 +52,12 @@ client.on('messageCreate', async (message) => {
 
         message.reply(`Reproduciendo \`${track.title}\``);
     }
+});
+
+// Manejo de errores
+client.on('error', console.error);
+player.on('error', (queue, error) => {
+    console.log(`Error en la cola ${queue.guild.name}: ${error.message}`);
 });
 
 // Conectar el bot
