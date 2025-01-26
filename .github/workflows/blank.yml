@@ -24,7 +24,19 @@ jobs:
     - name: Install dependencies
       run: npm install
 
-    - name: Run the bot
-      run: node bot.js
+    - name: Deploy to Heroku
       env:
-        DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+        HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+        HEROKU_APP_NAME: ${{ secrets.HEROKU_APP_NAME }}
+      run: |
+        # Instalar Heroku CLI
+        curl https://cli-assets.heroku.com/install.sh | sh
+        
+        # Autenticar en Heroku
+        echo $HEROKU_API_KEY | heroku auth:token
+        
+        # Agregar Heroku remote
+        heroku git:remote -a $HEROKU_APP_NAME
+        
+        # Empujar cambios a Heroku
+        git push heroku main
