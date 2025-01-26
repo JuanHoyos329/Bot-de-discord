@@ -47,6 +47,7 @@ client.on('messageCreate', async (message) => {
 
         if (!channel) return message.reply('Tienes que estar en un canal de voz para reproducir música!');
 
+        // Crear una cola de reproducción
         const queue = player.createQueue(message.guild, {
             metadata: {
                 channel: message.channel
@@ -54,12 +55,14 @@ client.on('messageCreate', async (message) => {
         });
 
         try {
+            // Conectar al canal de voz
             if (!queue.connection) await queue.connect(channel);
-        } catch {
+        } catch (error) {
             queue.destroy();
             return message.reply('No pude unirme al canal de voz!');
         }
 
+        // Buscar y reproducir la pista
         const track = await player.search(query, {
             requestedBy: message.member
         }).then(x => x.tracks[0]);
