@@ -4,9 +4,8 @@ on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
+  schedule:
+    - cron: '*/15 * * * *'  # Programar para ejecutarse cada 15 minutos
 
 jobs:
   build:
@@ -24,19 +23,9 @@ jobs:
     - name: Install dependencies
       run: npm install
 
-    - name: Deploy to Heroku
-      env:
-        HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-        HEROKU_APP_NAME: ${{ secrets.HEROKU_APP_NAME }}
+    - name: Run the bot
       run: |
-        # Instalar Heroku CLI
-        curl https://cli-assets.heroku.com/install.sh | sh
-        
-        # Autenticar en Heroku
-        echo $HEROKU_API_KEY | heroku auth:token
-        
-        # Agregar Heroku remote
-        heroku git:remote -a $HEROKU_APP_NAME
-        
-        # Empujar cambios a Heroku
-        git push heroku main
+        nohup npm start &
+        sleep 3600  # Mantener el bot activo durante 1 hora
+      env:
+        DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}

@@ -1,6 +1,7 @@
 // Requerimientos
 const { Client, GatewayIntentBits } = require('discord.js');
 const { Player } = require('discord-player');
+const { exec } = require('child_process');
 
 // Crear una nueva instancia del cliente de Discord
 const client = new Client({
@@ -18,6 +19,23 @@ const player = new Player(client);
 // Cuando el bot esté listo
 client.on('ready', () => {
     console.log('Tamo ready');
+});
+
+// Comando para encender el bot
+client.on('messageCreate', (message) => {
+    if (message.content === '!startbot') {
+        exec('node bot.js', (error, stdout, stderr) => {
+            if (error) {
+                message.reply(`Error al iniciar el bot: ${error.message}`);
+                return;
+            }
+            if (stderr) {
+                message.reply(`Error: ${stderr}`);
+                return;
+            }
+            message.reply(`Bot iniciado: ${stdout}`);
+        });
+    }
 });
 
 // Comando para reproducir música
