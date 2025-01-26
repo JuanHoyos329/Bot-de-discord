@@ -2,7 +2,6 @@
 const { Client, GatewayIntentBits } = require('discord.js');
 const { Player } = require('discord-player');
 const { exec } = require('child_process');
-require('dotenv').config();  // Cargar variables de entorno desde el archivo .env
 
 // Crear una nueva instancia del cliente de Discord
 const client = new Client({
