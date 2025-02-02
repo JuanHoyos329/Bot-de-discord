@@ -95,9 +95,9 @@ async def resume(ctx):
     else:
         await ctx.send("❌ La música no está pausada.")
 
-
 ydl_opts = {
-    'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+    'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+    'cookiefile': 'cookies.txt',  # Archivo de cookies
 }
 
 def play(ctx, url):
