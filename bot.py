@@ -58,10 +58,14 @@ async def play(ctx, url: str):
 
     await ctx.send(f"🎵 Buscando {url}...")
 
-    with youtube_dl.YoutubeDL(YDL_OPTIONS) as ydl:
-        info = ydl.extract_info(url, download=False)
-        url2 = info['url']
-        title = info['title']
+    try:
+        with youtube_dl.YoutubeDL(YDL_OPTIONS) as ydl:
+            info = ydl.extract_info(url, download=False)
+            url2 = info['url']
+            title = info['title']
+    except yt_dlp.utils.ExtractorError as e:
+        await ctx.send("❌ Error al extraer información del video. Es posible que necesites iniciar sesión para ver este video.")
+        return
 
     ctx.voice_client.stop()
     source = discord.FFmpegPCMAudio(url2, executable=r"C:\Users\juana\OneDrive\Escritorio\FFmpeg\ffmpeg-7.1-essentials_build\bin\ffmpeg.exe", **FFMPEG_OPTIONS)
