@@ -6,16 +6,6 @@ import yt_dlp as youtube_dl
 from dotenv import load_dotenv
 import yt_dlp
 
-ydl_opts = {
-    'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-}
-
-def play(ctx, url):
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        info = ydl.extract_info(url, download=False)
-        # Procede con la reproducción
-
-
 # Cargar variables del entorno
 load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
@@ -105,5 +95,16 @@ async def resume(ctx):
     else:
         await ctx.send("❌ La música no está pausada.")
 
+
+ydl_opts = {
+    'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+}
+
+def play(ctx, url):
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        info = ydl.extract_info(url, download=False)
+        # Procede con la reproducción
+
+        
 # Iniciar el bot
 bot.run(TOKEN)
