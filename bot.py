@@ -30,17 +30,15 @@ async def join(ctx):
         await ctx.send("❌ Debes estar en un canal de voz para que me una.")
         return
     channel = ctx.author.voice.channel
-    
-    if ctx.voice_client is not None:
-        if ctx.voice_client.channel != channel:  # Verifica si el bot ya está en otro canal
-            await ctx.voice_client.move_to(channel)
-            await ctx.send(f"🔊 Me moví a {channel.name}!")
-        else:
-            await ctx.send(f"🔊 Ya estoy en el canal {channel.name}.")
-    else:
-        await channel.connect()
-        await ctx.send(f"🔊 Me uní a {channel.name}!")
 
+    if ctx.voice_client is not None:
+        await ctx.voice_client.move_to(channel)
+    else:
+        try:
+            await channel.connect(timeout=60.0)  # Aumentar el tiempo de espera a 60 segundos
+            await ctx.send(f"🔊 Me uní a {channel.name}!")
+        except asyncio.TimeoutError:
+            await ctx.send("❌ No pude conectarme al canal de voz a tiempo.")
 
 # Comando para salir del canal de voz
 @bot.command()
