@@ -28,11 +28,17 @@ async def join(ctx):
         await ctx.send("❌ Debes estar en un canal de voz para que me una.")
         return
     channel = ctx.author.voice.channel
-    if ctx.voice_client is not None:  # Si ya está en un canal de voz, muévete
-        await ctx.voice_client.move_to(channel)
+    
+    if ctx.voice_client is not None:
+        if ctx.voice_client.channel != channel:  # Verifica si el bot ya está en otro canal
+            await ctx.voice_client.move_to(channel)
+            await ctx.send(f"🔊 Me moví a {channel.name}!")
+        else:
+            await ctx.send(f"🔊 Ya estoy en el canal {channel.name}.")
     else:
         await channel.connect()
-    await ctx.send(f"🔊 Me uní a {channel.name}!")
+        await ctx.send(f"🔊 Me uní a {channel.name}!")
+
 
 # Comando para salir del canal de voz
 @bot.command()
