@@ -1,4 +1,4 @@
-name: Node.js CI
+name: Discord Bot Deployment
 
 on:
   push:
@@ -6,25 +6,27 @@ on:
       - main
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
+    - name: Set up Python
+      uses: actions/setup-python@v4
       with:
-        node-version: '18'
+        python-version: '3.8'
 
     - name: Install dependencies
       run: |
-        npm install
-        npm install ffmpeg-static
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        sudo apt-get update
+        sudo apt-get install -y ffmpeg
 
     - name: Run bot
       env:
         DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
       run: |
-        node bot.js
+        python bot.py
