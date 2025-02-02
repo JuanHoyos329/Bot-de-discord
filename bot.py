@@ -5,6 +5,7 @@ import asyncio
 import yt_dlp as youtube_dl
 from dotenv import load_dotenv
 import yt_dlp
+from pytube import YouTube
 
 # Cargar variables del entorno
 load_dotenv()
@@ -59,12 +60,12 @@ async def play(ctx, url: str):
     await ctx.send(f"🎵 Buscando {url}...")
 
     try:
-        with youtube_dl.YoutubeDL(YDL_OPTIONS) as ydl:
-            info = ydl.extract_info(url, download=False)
-            url2 = info['url']
-            title = info['title']
-    except yt_dlp.utils.ExtractorError as e:
-        await ctx.send("❌ Error al extraer información del video. Es posible que necesites iniciar sesión para ver este video.")
+        yt = YouTube(url)
+        stream = yt.streams.filter(only_audio=True).first()
+        url2 = stream.url
+        title = yt.title
+    except Exception as e:
+        await ctx.send("❌ Error al extraer información del video.")
         return
 
     ctx.voice_client.stop()
